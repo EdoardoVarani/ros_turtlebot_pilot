@@ -1,6 +1,6 @@
 #include "ros/ros.h"
 #include "geometry_msgs/Twist.h"
-#include "examples/SetMode.h"
+#include "ros_turtlebot_pilot/SetMode.h"
 
 
 #define RUN_PERIOD_DEFAULT 0.1
@@ -21,7 +21,7 @@ private:
         
     void joyCallback(const geometry_msgs::Twist::ConstPtr& msg);
     void autoCallback(const geometry_msgs::Twist::ConstPtr& msg);
-    bool modeService(examples::SetMode::Request &req, examples::SetMode::Response &res);
+    bool modeService(ros_turtlebot_pilot::SetMode::Request &req, ros_turtlebot_pilot::SetMode::Response &res);
 public:    
     void Prepare();
     void RunContinuously();
@@ -60,7 +60,7 @@ void ROSnode::RunPeriodically() {
     }
 }
 
-bool ROSnode::modeService(examples::SetMode::Request &req, examples::SetMode::Response &res) {
+bool ROSnode::modeService(ros_turtlebot_pilot::SetMode::Request &req, ros_turtlebot_pilot::SetMode::Response &res) {
     mode = req.mode;
     res.ok = true;
     
