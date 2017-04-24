@@ -1,40 +1,13 @@
-#include "ros/ros.h"
-#include "geometry_msgs/Twist.h"
-#include "ros_turtlebot_pilot/SetMode.h"
 
+#include "mux.h"
 
 #define RUN_PERIOD_DEFAULT 0.1
 #define NAME_OF_THIS_NODE "mux"
 
-//-----------------------------------------------------------------
-//-----------------------------------------------------------------
-
-class ROSnode {
-private: 
-    ros::NodeHandle Handle;
-    ros::Subscriber joySub;
-    ros::Subscriber autoSub;
-    ros::Publisher cmdPub;
-    ros::ServiceServer modeSr;
-    geometry_msgs::Twist command;
-    int mode;
-        
-    void joyCallback(const geometry_msgs::Twist::ConstPtr& msg);
-    void autoCallback(const geometry_msgs::Twist::ConstPtr& msg);
-    bool modeService(ros_turtlebot_pilot::SetMode::Request &req, ros_turtlebot_pilot::SetMode::Response &res);
-public:    
-    void Prepare();
-    void RunContinuously();
-    void RunPeriodically();
-};
-
-//-----------------------------------------------------------------
-//-----------------------------------------------------------------
-
-void ROSnode::Prepare() {
-    joySub = Handle.subscribe("cmd_joy", 10, &ROSnode::joyCallback, this);    
-    autoSub = Handle.subscribe("cmd_auto", 10, &ROSnode::autoCallback, this);
-    modeSr = Handle.advertiseService("mode", &ROSnode::modeService, this);
+void Mux::Prepare() {
+    joySub = Handle.subscribe("cmd_joy", 10, &Mux::joyCallback, this);    
+    autoSub = Handle.subscribe("cmd_auto", 10, &Mux::autoCallback, this);
+    modeSr = Handle.advertiseService("mode", &Mux::modeService, this);
     cmdPub = Handle.advertise<geometry_msgs::Twist>("mobile_base/commands/velocity", 10);
     
     mode = 0;
@@ -43,13 +16,13 @@ void ROSnode::Prepare() {
 }
 
 
-void ROSnode::RunContinuously() {
+void Mux::RunContinuously() {
   ROS_INFO("Node %s running continuously.", ros::this_node::getName().c_str());
    
   ros::spin();
 }
 
-void ROSnode::RunPeriodically() {
+void Mux::RunPeriodically() {
     ROS_INFO("Node %s running periodically.", ros::this_node::getName().c_str());
     
     ros::Rate r(10); //10 hz
@@ -60,14 +33,21 @@ void ROSnode::RunPeriodically() {
     }
 }
 
-bool ROSnode::modeService(ros_turtlebot_pilot::SetMode::Request &req, ros_turtlebot_pilot::SetMode::Response &res) {
+/*
+ * this callback swicht the mode 
+ */
+bool Mux::modeService(ros_turtlebot_pilot::SetMode::Request &req, ros_turtlebot_pilot::SetMode::Response &res) {
     mode = req.mode;
     res.ok = true;
-    
+    std::cout << "service called, mode = " << mode << "\n";
     return true;
 }
 
-void ROSnode::joyCallback(const geometry_msgs::Twist::ConstPtr& msg) {
+/*
+ * this callback publish the command to the turtlebot only when the mode 
+ * is pilot. The callback is registered on the cmd_auto topic.
+*/
+void Mux::joyCallback(const geometry_msgs::Twist::ConstPtr& msg) {
     if(mode == 0) {
         geometry_msgs::Twist out;
         out.linear.x = msg->linear.x;
@@ -76,7 +56,11 @@ void ROSnode::joyCallback(const geometry_msgs::Twist::ConstPtr& msg) {
     }
 }
 
-void ROSnode::autoCallback(const geometry_msgs::Twist::ConstPtr& msg) {
+/*
+ * this callback publish the command to the turtlebot only when the mode 
+ * is automatic. The callback is registered on the cmd_joy topic.
+*/
+void Mux::autoCallback(const geometry_msgs::Twist::ConstPtr& msg) {
     if(mode == 1) {
         geometry_msgs::Twist out;
         out.linear.x = msg->linear.x;
@@ -90,7 +74,7 @@ void ROSnode::autoCallback(const geometry_msgs::Twist::ConstPtr& msg) {
 
 int main(int argc, char **argv) {
   ros::init(argc, argv, NAME_OF_THIS_NODE);
-  ROSnode mNode;
+  Mux mNode;
    
   mNode.Prepare();
   mNode.RunContinuously();
