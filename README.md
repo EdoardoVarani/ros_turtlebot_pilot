@@ -8,3 +8,6 @@
 For terminal utility
 sudo apt-get install libncurses5-dev
 
+## Reference
+Ncurses: Library for terminal utils (http://www.tldp.org/HOWTO/NCURSES-Programming-HOWTO/)
+
