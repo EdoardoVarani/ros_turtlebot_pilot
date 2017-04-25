@@ -4,3 +4,7 @@
 - odometry
 - autonomous movement by position goal
 
+## Required libraries 
+For terminal utility
+sudo apt-get install libncurses5-dev
+

@@ -1,0 +1,31 @@
+#ifndef _JOYPAD_SIMULATOR
+#define _JOYPAD_SIMULATOR
+
+#include "ros/ros.h"
+#include "sensor_msgs/Joy.h"
+#include "geometry_msgs/Twist.h"
+#include <stdio.h>
+#include <termios.h>
+#include <unistd.h>
+#include <ncurses.h>
+#include <cstdlib>
+
+
+class JoyPadSimulator{
+private: ros::NodeHandle nodeHandle;
+	ros::Publisher pub;
+	sensor_msgs::Joy msg_out;
+	struct termios oldt,newt;
+
+	
+public: 
+  void Prepare();
+  void RunPeriodically();
+  ///\brief setup terminal in raw mode disabling echo
+  void setupTerminal();
+  ///\brief restore old settings
+  void restoreTerminal();
+  
+};
+
+#endif

@@ -13,6 +13,9 @@ find_package(catkin REQUIRED COMPONENTS
     geometry_msgs
     sensor_msgs
     message_generation)
+find_package(PkgConfig REQUIRED)
+    
+  pkg_check_modules(ncurses++ REQUIRED ncurses++)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -137,6 +140,9 @@ target_link_libraries(joy_cmd ${catkin_LIBRARIES})
 add_executable(mux src/mux.cpp)
 target_link_libraries(mux ${catkin_LIBRARIES})
 add_dependencies(mux examples_gencpp)
+
+add_executable(joypad_simulator src/joypad_simulator.cpp)
+target_link_libraries(joypad_simulator ${catkin_LIBRARIES} ncurses)
 
 
 
